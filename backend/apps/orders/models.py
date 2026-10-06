@@ -305,44 +305,72 @@ class Order(models.Model):
     # ---------- Return ----------
     @property
     def active_return(self):
-        return self.returns.exclude(status="rejected").first()
+        return self.returns.exclude(status="cancelled").first() or self.returns.first()
     
     @property
-    def can_return(self):
+    def return_window_ends_at(self):
         if self.status != "delivered" or not self.delivered_at:
-            return False
+            return None
+        days = getattr(settings, "RETURN_WINDOW_DAYS", 7)
+        return self.delivered_at + timedelta(days=days)
 
-        window = timedelta(days=getattr(settings, "RETURN_WINDOW_DAYS", 7))
-        if timezone.now() > self.delivered_at + window:
+    @property
+    def can_return(self):
+        ends_at = self.return_window_ends_at
+        if not ends_at or timezone.now() > ends_at:
             return False
-
-        return not self.returns.exclude(status="rejected").exists()
+        return not self.returns.exclude(status="cancelled").exists()
 
     def request_return(self, reason, comment=""):
+        from apps.orders.emails import send_return_email_async
+
         with transaction.atomic():
             order = Order.objects.select_for_update().get(pk=self.pk)
             if not order.can_return:
                 raise ValueError("This order cannot be returned.")
-            return OrderReturn.objects.create(
+
+            ret = OrderReturn.objects.create(
                 order=order, reason=reason, comment=comment
             )
+            ret_id = ret.pk
+            transaction.on_commit(lambda: send_return_email_async(ret_id, "requested"))
+            return ret
 
 class OrderReturn(models.Model):
     STATUS_CHOICES = [
         ("requested", "Requested"),
         ("approved", "Approved"),
         ("rejected", "Rejected"),
+        ("cancelled", "Cancelled"),
         ("picked_up", "Picked up"),
         ("received", "Received"),
         ("refunded", "Refunded"),
     ]
 
+    ALLOWED_TRANSITIONS = {
+        "requested": {"approved", "rejected"},
+        "approved": {"picked_up", "cancelled"},
+        "picked_up": {"received"},
+        "received": {"rejected"},    
+        "rejected": set(),
+        "refunded": set(),
+        "refunded": set(),
+    }
+    # In status par customer ko email jayegi
+    EMAIL_ON = {"approved", "rejected", "cancelled"}
+
     order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name="returns")
     reason = models.CharField(max_length=100)
     comment = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="requested")
-    admin_note = models.TextField(blank=True)
+
+    rejection_reason = models.TextField(blank=True)   # customer ko dikhega
+    admin_note = models.TextField(blank=True)         # sirf internal
     refund_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    restock = models.BooleanField(
+        default=True,
+        help_text="Item wapas bechne layak hai to stock mein add hoga. Damaged ho to uncheck karo.",
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -353,12 +381,47 @@ class OrderReturn(models.Model):
     def __str__(self):
         return f"Return for Order #{self.order_id} - {self.status}"
 
+    def change_status(self, new_status):
+        from apps.orders.emails import send_return_email_async
+
+        with transaction.atomic():
+            ret = OrderReturn.objects.select_for_update().get(pk=self.pk)
+
+            if new_status not in self.ALLOWED_TRANSITIONS.get(ret.status, set()):
+                raise ValueError(
+                    f"Cannot move a '{ret.status}' return to '{new_status}'."
+                )
+            # DB se padhta hai, isliye admin ko reason pehle Save karna hoga
+            if new_status == "rejected" and not ret.rejection_reason.strip():
+                raise ValueError(
+                    "Write a rejection reason and click Save first. "
+                    "The customer will see it."
+                )
+
+            ret.status = new_status
+            ret.save(update_fields=["status", "updated_at"])
+
+        self.status = new_status
+        if new_status in self.EMAIL_ON:
+            ret_id = self.pk
+            transaction.on_commit(lambda: send_return_email_async(ret_id, new_status))
+        return self
+
+    def cancel_by_customer(self):
+        if self.status not in ("requested", "approved"):
+            raise ValueError("This return can no longer be cancelled.")
+        return self.change_status("cancelled")
+
     def mark_refunded(self):
-        """Refund API success hone ke baad call karo."""
+        """Razorpay refund success hone ke BAAD call karo."""
+        from apps.orders.emails import send_return_email_async
+
         with transaction.atomic():
             ret = OrderReturn.objects.select_for_update().get(pk=self.pk)
             if ret.status == "refunded":
                 return ret
+            if ret.status != "received":
+                raise ValueError("Item must be received before refund.")
 
             ret.status = "refunded"
             ret.refund_amount = ret.refund_amount or ret.order.final_amount
@@ -367,7 +430,12 @@ class OrderReturn(models.Model):
             order = Order.objects.select_for_update().get(pk=ret.order_id)
             order.status = "returned"
             order.save(update_fields=["status", "updated_at"])
-            order._restock_items()  # sirf agar item resell karte ho, warna hata do
+
+            if ret.restock:
+                order._restock_items()
+
+            ret_id = ret.pk
+            transaction.on_commit(lambda: send_return_email_async(ret_id, "refunded"))
 
         self.status = "refunded"
         return ret

@@ -333,14 +333,16 @@ class OrderReturnAdmin(ModelAdmin):
         "reason",
         "comment",
         "status",
-        "refund_amount",   # sirf yahi editable hai (partial refund ke liye)
+        "rejection_reason",   # reject se pehle likho aur Save karo
+        "refund_amount",      # khaali chhodo to poora order amount
+        "restock",
         "admin_note",
         "created_at",
         "updated_at",
     ]
 
     actions_detail = ["approve", "reject", "picked_up", "received", "refund"]
-    actions_row = ["approve", "reject"]
+    actions_row = ["approve"]   # reject row se nahi, kyunki reason chahiye
 
     def has_add_permission(self, request):
         return False
@@ -366,31 +368,31 @@ class OrderReturnAdmin(ModelAdmin):
     def _back(self, object_id):
         return redirect(reverse("admin:orders_orderreturn_change", args=[object_id]))
 
-    def _move(self, request, object_id, from_states, new_status):
+    def _move(self, request, object_id, new_status):
         ret = get_object_or_404(OrderReturn, pk=object_id)
-        if ret.status not in from_states:
-            messages.error(request, f"Cannot move a '{ret.status}' return to '{new_status}'.")
-        else:
-            ret.status = new_status
-            ret.save(update_fields=["status", "updated_at"])
+        
+        try:
+            ret.change_status(new_status)
             messages.success(request, f"Return #{ret.id} marked {new_status}.")
+        except ValueError as e:
+            messages.error(request, str(e))
         return self._back(object_id)
 
     @action(description="Approve")
     def approve(self, request, object_id):
-        return self._move(request, object_id, ["requested"], "approved")
+        return self._move(request, object_id, "approved")
 
     @action(description="Reject")
     def reject(self, request, object_id):
-        return self._move(request, object_id, ["requested"], "rejected")
+        return self._move(request, object_id, "rejected")
 
     @action(description="Mark picked up")
     def picked_up(self, request, object_id):
-        return self._move(request, object_id, ["approved"], "picked_up")
+        return self._move(request, object_id, "picked_up")
 
     @action(description="Mark received")
     def received(self, request, object_id):
-        return self._move(request, object_id, ["picked_up"], "received")
+        return self._move(request, object_id, "received")
 
     @action(description="Refund and close")
     def refund(self, request, object_id):
@@ -413,3 +415,10 @@ class OrderReturnAdmin(ModelAdmin):
         except Exception as e:
             messages.error(request, f"Refund failed: {e}")
         return self._back(object_id)
+
+    
+    actions_detail = ["approve", "reject", "cancel_return", "picked_up", "received", "refund"]
+    
+    @action(description="Cancel return")
+    def cancel_return(self, request, object_id):
+        return self._move(request, object_id, "cancelled")

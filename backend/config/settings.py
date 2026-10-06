@@ -216,6 +216,8 @@ INVOICE_COMPANY = {
     "phone": "+91 98765 43210",
 }
 
+RETURN_WINDOW_DAYS = 7
+
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 

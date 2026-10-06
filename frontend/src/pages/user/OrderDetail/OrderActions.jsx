@@ -1,9 +1,15 @@
 import { useState } from "react";
 import {
   useCancelOrderMutation,
+  useCancelReturnMutation,
   useRequestReturnMutation,
 } from "../../../services/ordersApi";
 import Modal from "../../../components/common/Modal";
+
+function daysLeft(endsAt) {
+  const ms = new Date(endsAt) - new Date();
+  return Math.max(Math.ceil(ms / (1000 * 60 * 60 * 24)), 0);
+}
 
 const CANCEL_REASONS = [
   "Changed my mind",
@@ -25,6 +31,8 @@ const RETURN_REASONS = [
 const RETURN_LABEL = {
   requested: "Return request sent",
   approved: "Return approved, pickup soon",
+  rejected: "Return request rejected",
+  cancelled: "Return cancelled",
   picked_up: "Item picked up",
   received: "Item received, refund processing",
   refunded: "Refund completed",
@@ -44,10 +52,17 @@ function getHelpText(order) {
     return "This order has been returned and refunded.";
   }
   if (order.can_return) {
-    return "Not happy with your order? You can request a return.";
+    const left = daysLeft(order.return_window_ends_at);
+    return `Not happy with your order? You can request a return for ${left} more day${left === 1 ? "" : "s"}.`;
   }
   if (order.active_return) {
-    return "Your return request is in progress.";
+    return order.active_return.status === "rejected"
+      ? `Your return request was not approved.${
+          order.active_return.rejection_reason
+            ? ` Reason: ${order.active_return.rejection_reason}`
+            : ""
+        }`
+      : "Your return request is in progress.";
   }
   if (order.status === "delivered") {
     return "The return window for this order has closed.";
@@ -58,18 +73,47 @@ function getHelpText(order) {
   return "You can cancel before your order ships.";
 }
 
+const MODALS = {
+  cancel: {
+    title: "CANCEL ORDER",
+    subTitle: "Cancel this order?",
+    cancelBtn: "Keep order",
+    submitBtn: "Yes, cancel order",
+    busyBtn: "Cancelling...",
+    text: "This can't be undone. If you've already paid, we'll refund it.",
+  },
+  return: {
+    title: "RETURN ITEM",
+    subTitle: "Return an item",
+    cancelBtn: "Close",
+    submitBtn: "Submit return request",
+    busyBtn: "Submitting...",
+    text: "Tell us what went wrong and we'll arrange a pickup.",
+  },
+  cancel_return: {
+    title: "CANCEL RETURN",
+    subTitle: "Cancel your return request?",
+    cancelBtn: "Keep return",
+    submitBtn: "Yes, cancel return",
+    busyBtn: "Cancelling...",
+    text: "Your return request will be cancelled. You can request a return again while the return window is open.",
+  },
+};
+
 function OrderActions({ order }) {
   const [cancelOrder, { isLoading: isCancelling }] = useCancelOrderMutation();
   const [requestReturn, { isLoading: isReturning }] =
     useRequestReturnMutation();
+  const [cancelReturn, { isLoading: isCancellingReturn }] =
+    useCancelReturnMutation();
 
   const [modal, setModal] = useState(null);
   const [reason, setReason] = useState("");
   const [comment, setComment] = useState("");
   const [feedback, setFeedback] = useState({ type: "", text: "" });
 
-  const isBusy = isCancelling || isReturning;
-  const isCancel = modal === "cancel";
+  const isBusy = isCancelling || isReturning || isCancellingReturn;
+  // const isCancel = modal === "cancel";
 
   const openModal = (type) => {
     setReason("");
@@ -127,6 +171,28 @@ function OrderActions({ order }) {
     }
   };
 
+  const handleCancelReturn = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await cancelReturn({ id: order.id }).unwrap();
+      setModal(null);
+      setFeedback({
+        type: "success",
+        text: res?.message ?? "Return cancelled.",
+      });
+    } catch (err) {
+      setFeedback({
+        type: "error",
+        text: err?.data?.message ?? "Could not cancel the return.",
+      });
+    }
+  };
+
+  const HANDLERS = {
+    cancel: handleCancel,
+    return: handleReturn,
+    cancel_return: handleCancelReturn,
+  };
   return (
     <>
       <section className="order-actions-panel" aria-label="Order actions">
@@ -164,6 +230,16 @@ function OrderActions({ order }) {
                 order.active_return.status_display}
             </span>
           )}
+
+          {order.active_return?.can_cancel && (
+            <button
+              className="order-cancel-link"
+              type="button"
+              onClick={() => openModal("cancel_return")}
+            >
+              <i className="fa fa-times-circle"></i> Cancel return
+            </button>
+          )}
         </div>
       </section>
 
@@ -177,56 +253,43 @@ function OrderActions({ order }) {
         <Modal
           show
           onClose={closeModal}
-          title={isCancel ? "CANCEL ORDER" : "RETURN ITEM"}
-          subTitle={isCancel ? "Cancel this order?" : "Return an item"}
-          cancelBtn={isCancel ? "Keep order" : "Close"}
-          submitBtn={
-            isCancel
-              ? isCancelling
-                ? "Cancelling..."
-                : "Yes, cancel order"
-              : isReturning
-                ? "Submitting..."
-                : "Submit return request"
-          }
+          title={MODALS[modal].title}
+          subTitle={MODALS[modal].subTitle}
+          cancelBtn={MODALS[modal].cancelBtn}
+          submitBtn={isBusy ? MODALS[modal].busyBtn : MODALS[modal].submitBtn}
           formId="order-action-form"
           isDisabled={isBusy}
         >
-          <form
-            id="order-action-form"
-            onSubmit={isCancel ? handleCancel : handleReturn}
-          >
-            <p>
-              {isCancel
-                ? "This can't be undone. If you've already paid, we'll refund it."
-                : "Tell us what went wrong and we'll arrange a pickup."}
-            </p>
+          <form id="order-action-form" onSubmit={HANDLERS[modal]}>
+            <p>{MODALS[modal].text}</p>
 
-            <div className="form-group">
-              <label htmlFor="order-reason">Reason</label>
-              <select
-                id="order-reason"
-                className="form-control"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                required={!isCancel}
-              >
-                <option value="">Select a reason</option>
-                {isCancel
-                  ? CANCEL_REASONS.map((r) => (
-                      <option key={r} value={r}>
-                        {r}
-                      </option>
-                    ))
-                  : RETURN_REASONS.map((r) => (
-                      <option key={r.value} value={r.value}>
-                        {r.label}
-                      </option>
-                    ))}
-              </select>
-            </div>
+            {modal !== "cancel_return" && (
+              <div className="form-group">
+                <label htmlFor="order-reason">Reason</label>
+                <select
+                  id="order-reason"
+                  className="form-control"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  required={modal === "return"}
+                >
+                  <option value="">Select a reason</option>
+                  {modal === "cancel"
+                    ? CANCEL_REASONS.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))
+                    : RETURN_REASONS.map((r) => (
+                        <option key={r.value} value={r.value}>
+                          {r.label}
+                        </option>
+                      ))}
+                </select>
+              </div>
+            )}
 
-            {!isCancel && (
+            {modal === "return" && (
               <div className="form-group">
                 <label htmlFor="order-comment">Comments</label>
                 <textarea

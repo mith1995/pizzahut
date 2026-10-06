@@ -1,0 +1,60 @@
+{% extends "emails/base.html" %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+    <tr>
+        <td style="padding: 48px 42px 28px">
+        <p style="margin: 0 0 12px; color: #ed4e53; font-size: 12px; font-weight: bold; letter-spacing: 2px">
+            {{ eyebrow }}
+        </p>
+        <h1 style="margin: 0; color: #333333; font-size: 30px; line-height: 1.2">
+            {{ title }}
+        </h1>
+        <p style="margin: 22px 0 0; color: #555555; font-size: 16px; line-height: 1.7">
+            Hi {{ order.first_name }},
+        </p>
+        <p style="margin: 12px 0 0; color: #555555; font-size: 16px; line-height: 1.7">
+            {{ message }}
+        </p>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 0 42px 28px">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background: #fffaf4; border: 1px solid #eee4da">
+            <tr>
+            <td style="padding: 18px 20px; color: #555555; font-size: 14px; line-height: 1.8">
+                <strong style="color: #333333">Order ID:</strong> #OD-{{ order.id }}<br />
+                <strong style="color: #333333">Return reason:</strong> {{ ret.get_reason_display|default:ret.reason }}<br />
+                <strong style="color: #333333">Requested on:</strong> {{ ret.created_at|date:"d M Y, h:i A" }}
+                {% if kind == "refunded" %}<br /><strong style="color: #333333">Refund amount:</strong> {{ currency_symbol }}{{ ret.refund_amount }}{% endif %}
+            </td>
+            </tr>
+        </table>
+        </td>
+    </tr>
+
+    {% if kind == "rejected" and ret.rejection_reason %}
+    <tr>
+        <td style="padding: 0 42px 28px">
+        <p style="margin: 0 0 8px; color: #ed4e53; font-size: 12px; font-weight: bold; letter-spacing: 2px">REASON</p>
+        <p style="margin: 0; color: #555555; font-size: 15px; line-height: 1.7">{{ ret.rejection_reason|linebreaksbr }}</p>
+        </td>
+    </tr>
+    {% endif %}
+
+    <tr>
+        <td align="center" style="padding: 8px 42px 32px">
+        <a href="{{ order_url }}" style="display: inline-block; background: #ed4e53; color: #ffffff; font-size: 16px; font-weight: bold; line-height: 1; padding: 17px 28px; text-decoration: none">View your order</a>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="border-top: 1px solid #eee4da; padding: 24px 42px 36px">
+        <p style="margin: 0; color: #777777; font-size: 13px; line-height: 1.6">
+            Questions about this return? Contact our support team and mention order #OD-{{ order.id }}.
+        </p>
+        </td>
+    </tr>
+{% endblock content %}

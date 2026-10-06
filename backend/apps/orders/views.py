@@ -199,3 +199,15 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
         response = HttpResponse(pdf, content_type="application/pdf")
         response["Content-Disposition"] = f'attachment; filename="invoice-OD-{order.id}.pdf"'
         return response
+
+    @action(detail=True, methods=["post"], url_path="return/cancel")
+    def cancel_return(self, request, pk=None):
+        order = self.get_object()
+        ret = order.active_return
+        if not ret:
+            return error_response(message="No return found.", status=status.HTTP_400_BAD_REQUEST)
+        try:
+            ret.cancel_by_customer()
+        except ValueError as e:
+            return error_response(message=str(e), status=status.HTTP_400_BAD_REQUEST)
+        return self._fresh_order_response(request, order.pk, "Return cancelled")

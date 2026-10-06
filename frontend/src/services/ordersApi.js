@@ -65,6 +65,17 @@ export const ordersApi = api.injectEndpoints({
         cache: "no-cache",
       }),
     }),
+
+    cancelReturn: build.mutation({
+      query: ({ id }) => ({
+        url: `/orders/${id}/return/cancel/`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Order", id },
+        { type: "Order", id: "LIST" },
+      ],
+    }),
   }),
 });
 
@@ -75,4 +86,5 @@ export const {
   useCancelOrderMutation,
   useRequestReturnMutation,
   useLazyGetInvoicePdfQuery,
+  useCancelReturnMutation,
 } = ordersApi;

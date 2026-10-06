@@ -36,6 +36,7 @@ class OrderItemSerializer(BasePriceSerializer, serializers.ModelSerializer):
 
 class OrderReturnSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source="get_status_display", read_only=True)
+    can_cancel = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderReturn
@@ -46,10 +47,16 @@ class OrderReturnSerializer(serializers.ModelSerializer):
             "status",
             "status_display",
             "refund_amount",
+            "rejection_reason",
+            "can_cancel",
             "created_at",
             "updated_at",
         ]
         read_only_fields = fields
+
+    def get_can_cancel(self, obj):
+        return obj.status in ("requested", "approved")
+
 class OrderListSerializer(BasePriceSerializer, serializers.ModelSerializer):
     items_count = serializers.SerializerMethodField()
     payment_status = serializers.SerializerMethodField()
@@ -102,6 +109,7 @@ class OrderSerializer(BasePriceSerializer, serializers.ModelSerializer):
     can_cancel = serializers.BooleanField(read_only=True)
     can_return = serializers.BooleanField(read_only=True)
     active_return = serializers.SerializerMethodField()
+    return_window_ends_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = Order
@@ -130,6 +138,7 @@ class OrderSerializer(BasePriceSerializer, serializers.ModelSerializer):
             "can_return",
             "active_return",
             "currency_symbol",
+            "return_window_ends_at"
         ]
         read_only_fields = fields
 

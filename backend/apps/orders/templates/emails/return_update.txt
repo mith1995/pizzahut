@@ -1,0 +1,17 @@
+{% autoescape off %}Hi {{ order.first_name }},
+
+{{ message }}
+
+Order ID: #OD-{{ order.id }}
+Return reason: {{ ret.reason }}
+Requested on: {{ ret.created_at|date:"d M Y, h:i A" }}
+{% if kind == "refunded" %}Refund amount: {{ currency_symbol }}{{ ret.refund_amount }}
+{% endif %}{% if kind == "rejected" and ret.rejection_reason %}
+Reason: {{ ret.rejection_reason }}
+{% endif %}
+View your order: {{ order_url }}
+
+Questions about this return? Contact us at {{ support_email }}.
+
+Pizza Restaurant
+{% endautoescape %}
