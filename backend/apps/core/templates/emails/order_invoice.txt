@@ -1,0 +1,39 @@
+{% autoescape off %}Hi {{ order.first_name }},
+
+{% if is_paid %}We have received your payment and your order is confirmed. Here is your invoice.{% else %}Here is the invoice for your Pizza Restaurant order.{% endif %}
+
+ORDER DETAILS
+-------------
+Order ID: #OD-{{ order.id }}
+Order date: {{ order.created_at|date:"d M Y, h:i A" }}
+{% if payment_method %}Payment method: {{ payment_method }}
+{% endif %}{% if transaction_id %}Transaction ID: {{ transaction_id }}
+{% endif %}{% if paid_at %}Paid on: {{ paid_at|date:"d M Y, h:i A" }}
+{% endif %}
+ITEMS
+-----
+{% for item in order.items.all %}{{ forloop.counter }}. {{ item.product_name }}{% if item.variant_name %} ({{ item.variant_name }}){% endif %}
+   {{ item.quantity }} x {{ currency_symbol }}{{ item.price }} = {{ currency_symbol }}{{ item.subtotal }}
+{% endfor %}
+SUMMARY
+-------
+Items subtotal: {{ currency_symbol }}{{ order.total_amount }}
+Delivery fee: {% if free_delivery %}FREE{% else %}{{ currency_symbol }}{{ order.delivery_fee }}{% endif %}
+Tax / GST: {{ currency_symbol }}{{ order.tax_amount }}
+{% if has_discount %}Discount: -{{ currency_symbol }}{{ order.discount_amount }}
+{% endif %}Grand total: {{ currency_symbol }}{{ order.final_amount }}
+
+SHIPPING TO
+-----------
+{{ order.first_name }} {{ order.last_name }}
+{{ order.phone }}
+{{ address_street }}
+{{ address_region }}
+
+View your order: {{ order_url }}
+
+This email is your order invoice and can be kept for your records.
+If you did not place this order, please contact us at {{ support_email }}.
+
+Pizza Restaurant
+{% endautoescape %}

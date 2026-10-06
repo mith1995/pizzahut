@@ -1,0 +1,40 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Order #OD-{{ order.id }} delivered{% endblock title %}
+
+{% block content %}
+    <tr>
+        <td style="padding: 48px 42px 28px">
+        <p style="margin: 0 0 12px; color: #ed4e53; font-size: 12px; font-weight: bold; letter-spacing: 2px">
+            ORDER DELIVERED
+        </p>
+        <h1 style="margin: 0; color: #333333; font-size: 30px; line-height: 1.2">
+            Your order has been delivered
+        </h1>
+        <p style="margin: 22px 0 0; color: #555555; font-size: 16px; line-height: 1.7">
+            Hi {{ order.first_name }},
+        </p>
+        <p style="margin: 12px 0 0; color: #555555; font-size: 16px; line-height: 1.7">
+            Your Pizza Restaurant order #OD-{{ order.id }} has been delivered. We hope you enjoy it.
+            Your invoice is attached to this email as a PDF.
+        </p>
+        </td>
+    </tr>
+
+    {% include "orders/emails/_summary.html" %}
+
+    <tr>
+        <td align="center" style="padding: 8px 42px 32px">
+        <a href="{{ order_url }}" style="display: inline-block; background: #ed4e53; color: #ffffff; font-size: 16px; font-weight: bold; line-height: 1; padding: 17px 28px; text-decoration: none">View your order</a>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="border-top: 1px solid #eee4da; padding: 24px 42px 36px">
+        <p style="margin: 0; color: #777777; font-size: 13px; line-height: 1.6">
+            Something not right with your order? You can request a return from the order page
+            within the return window, or contact our support team.
+        </p>
+        </td>
+    </tr>
+{% endblock content %}

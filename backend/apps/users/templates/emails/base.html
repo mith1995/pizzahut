@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>{% block title %}{% endblock title %}</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background: #fffaf4;
+      color: #333333;
+      font-family: Arial, Helvetica, sans-serif;
+    "
+  >
+    <table
+      role="presentation"
+      cellpadding="0"
+      cellspacing="0"
+      width="100%"
+      style="background: #fffaf4"
+    >
+      <tr>
+        <td align="center" style="padding: 32px 16px">
+          <table
+            role="presentation"
+            cellpadding="0"
+            cellspacing="0"
+            width="100%"
+            style="max-width: 620px; background: #ffffff"
+          >
+            <tr>
+              <td style="padding: 26px 32px; background: #1d2228">
+                <a
+                  href="{{site_url}}"
+                  style="
+                    color: #ffffff;
+                    font-size: 23px;
+                    font-weight: bold;
+                    text-decoration: none;
+                  "
+                >
+                  PIZZA <span style="color: #fccc4c">RESTAURANT</span>
+                </a>
+              </td>
+            </tr>
+            {% block content %}{% endblock content %}
+            <tr>
+              <td
+                style="
+                  padding: 22px 32px;
+                  background: #1d2228;
+                  text-align: center;
+                "
+              >
+                <p
+                  style="
+                    margin: 0;
+                    color: #d7d7d7;
+                    font-size: 12px;
+                    line-height: 1.6;
+                  "
+                >
+                  Need help? Contact us at
+                  <a href="mailto:{{support_email}}" style="color: #fccc4c"
+                    >{{support_email}}</a
+                  ><br />&copy; {{year}} Pizza Restaurant
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

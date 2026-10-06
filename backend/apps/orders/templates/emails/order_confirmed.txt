@@ -1,0 +1,12 @@
+{% autoescape off %}Hi {{ order.first_name }},
+
+{% if is_paid %}We have received your payment and your order is confirmed.{% else %}We have received your order and it is confirmed.{% endif %} We are getting it ready and will let you know once it is delivered.
+
+{% include "orders/emails/_summary.txt" %}
+View your order: {{ order_url }}
+
+You can cancel this order from the order page until it is shipped.
+If you did not place this order, please contact us at {{ support_email }}.
+
+Pizza Restaurant
+{% endautoescape %}

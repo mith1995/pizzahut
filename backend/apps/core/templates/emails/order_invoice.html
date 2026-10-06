@@ -1,0 +1,291 @@
+{% extends "emails/base.html" %}
+
+{% block title %}
+    Invoice for your Pizza Restaurant order #OD-{{ order.id }}
+{% endblock title %}
+
+{% block content %}
+    <tr>
+        <td style="padding: 48px 42px 28px">
+        <p
+            style="
+            margin: 0 0 12px;
+            color: #ed4e53;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            "
+        >
+            ORDER INVOICE
+        </p>
+        <h1
+            style="
+            margin: 0;
+            color: #333333;
+            font-size: 30px;
+            line-height: 1.2;
+            "
+        >
+            Thank you for your order
+        </h1>
+        <p
+            style="
+            margin: 22px 0 0;
+            color: #555555;
+            font-size: 16px;
+            line-height: 1.7;
+            "
+        >
+            Hi {{ order.first_name }},
+        </p>
+        <p
+            style="
+            margin: 12px 0 0;
+            color: #555555;
+            font-size: 16px;
+            line-height: 1.7;
+            "
+        >
+            {% if is_paid %}
+            We have received your payment and your order is confirmed. Here is your invoice.
+            {% else %}
+            Here is the invoice for your Pizza Restaurant order.
+            {% endif %}
+        </p>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 0 42px 28px">
+        <table
+            role="presentation"
+            cellpadding="0"
+            cellspacing="0"
+            width="100%"
+            style="background: #fffaf4; border: 1px solid #eee4da"
+        >
+            <tr>
+            <td
+                style="
+                padding: 18px 20px;
+                color: #555555;
+                font-size: 14px;
+                line-height: 1.8;
+                "
+            >
+                <strong style="color: #333333">Order ID:</strong> #OD-{{ order.id }}<br />
+                <strong style="color: #333333">Order date:</strong> {{ order.created_at|date:"d M Y, h:i A" }}<br />
+                {% if payment_method %}<strong style="color: #333333">Payment method:</strong> {{ payment_method }}<br />{% endif %}
+                {% if transaction_id %}<strong style="color: #333333">Transaction ID:</strong> {{ transaction_id }}<br />{% endif %}
+                {% if paid_at %}<strong style="color: #333333">Paid on:</strong> {{ paid_at|date:"d M Y, h:i A" }}{% endif %}
+            </td>
+            </tr>
+        </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 0 42px 8px">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+            <th
+                align="left"
+                style="
+                padding: 0 0 10px;
+                border-bottom: 2px solid #333333;
+                color: #333333;
+                font-size: 12px;
+                letter-spacing: 1px;
+                "
+            >
+                ITEM
+            </th>
+            <th
+                align="center"
+                style="
+                padding: 0 0 10px;
+                border-bottom: 2px solid #333333;
+                color: #333333;
+                font-size: 12px;
+                letter-spacing: 1px;
+                "
+            >
+                QTY
+            </th>
+            <th
+                align="right"
+                style="
+                padding: 0 0 10px;
+                border-bottom: 2px solid #333333;
+                color: #333333;
+                font-size: 12px;
+                letter-spacing: 1px;
+                "
+            >
+                TOTAL
+            </th>
+            </tr>
+            {% for item in order.items.all %}
+            <tr>
+            <td
+                style="
+                padding: 14px 0;
+                border-bottom: 1px solid #eee4da;
+                color: #333333;
+                font-size: 15px;
+                line-height: 1.5;
+                "
+            >
+                {{ item.product_name }}{% if item.variant_name %} <span style="color: #777777">({{ item.variant_name }})</span>{% endif %}<br />
+                <span style="color: #777777; font-size: 13px">{{ currency_symbol }}{{ item.price }} each</span>
+            </td>
+            <td
+                align="center"
+                style="
+                padding: 14px 0;
+                border-bottom: 1px solid #eee4da;
+                color: #333333;
+                font-size: 15px;
+                "
+            >
+                {{ item.quantity }}
+            </td>
+            <td
+                align="right"
+                style="
+                padding: 14px 0;
+                border-bottom: 1px solid #eee4da;
+                color: #333333;
+                font-size: 15px;
+                "
+            >
+                {{ currency_symbol }}{{ item.subtotal }}
+            </td>
+            </tr>
+            {% endfor %}
+        </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 8px 42px 28px">
+        <table
+            role="presentation"
+            cellpadding="0"
+            cellspacing="0"
+            width="100%"
+            style="color: #555555; font-size: 15px"
+        >
+            <tr>
+            <td style="padding: 6px 0">Items subtotal</td>
+            <td align="right" style="padding: 6px 0">{{ currency_symbol }}{{ order.total_amount }}</td>
+            </tr>
+            <tr>
+            <td style="padding: 6px 0">Delivery fee</td>
+            <td align="right" style="padding: 6px 0">
+                {% if free_delivery %}<span style="color: #2e8b57">FREE</span>{% else %}{{ currency_symbol }}{{ order.delivery_fee }}{% endif %}
+            </td>
+            </tr>
+            <tr>
+            <td style="padding: 6px 0">Tax / GST</td>
+            <td align="right" style="padding: 6px 0">{{ currency_symbol }}{{ order.tax_amount }}</td>
+            </tr>
+            {% if has_discount %}
+            <tr>
+            <td style="padding: 6px 0">Discount</td>
+            <td align="right" style="padding: 6px 0; color: #2e8b57">&minus;{{ currency_symbol }}{{ order.discount_amount }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+            <td
+                style="
+                padding: 14px 0 0;
+                border-top: 2px solid #333333;
+                color: #333333;
+                font-size: 18px;
+                font-weight: bold;
+                "
+            >
+                Grand total
+            </td>
+            <td
+                align="right"
+                style="
+                padding: 14px 0 0;
+                border-top: 2px solid #333333;
+                color: #333333;
+                font-size: 18px;
+                font-weight: bold;
+                "
+            >
+                {{ currency_symbol }}{{ order.final_amount }}
+            </td>
+            </tr>
+        </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 0 42px 28px">
+        <p
+            style="
+            margin: 0 0 8px;
+            color: #ed4e53;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            "
+        >
+            SHIPPING TO
+        </p>
+        <p
+            style="
+            margin: 0;
+            color: #555555;
+            font-size: 15px;
+            line-height: 1.7;
+            "
+        >
+            <strong style="color: #333333">{{ order.first_name }} {{ order.last_name }}</strong><br />
+            {{ order.phone }}<br />
+            {{ address_street }}<br />
+            {{ address_region }}
+        </p>
+        </td>
+    </tr>
+
+    <tr>
+        <td align="center" style="padding: 8px 42px 32px">
+        <a
+            href="{{ order_url }}"
+            style="
+            display: inline-block;
+            background: #ed4e53;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1;
+            padding: 17px 28px;
+            text-decoration: none;
+            "
+            >View your order</a
+        >
+        </td>
+    </tr>
+
+    <tr>
+        <td style="border-top: 1px solid #eee4da; padding: 24px 42px 36px">
+        <p
+            style="
+            margin: 0;
+            color: #777777;
+            font-size: 13px;
+            line-height: 1.6;
+            "
+        >
+            This email is your order invoice and can be kept for your records.
+            If you did not place this order, please contact our support team.
+        </p>
+        </td>
+    </tr>
+{% endblock content %}

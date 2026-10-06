@@ -1,0 +1,13 @@
+{% autoescape off %}Hi {{ order.first_name }},
+
+Your Pizza Restaurant order #OD-{{ order.id }} has been delivered. We hope you enjoy it.
+Your invoice is attached to this email as a PDF.
+
+{% include "orders/emails/_summary.txt" %}
+View your order: {{ order_url }}
+
+Something not right with your order? You can request a return from the order page
+within the return window, or contact us at {{ support_email }}.
+
+Pizza Restaurant
+{% endautoescape %}

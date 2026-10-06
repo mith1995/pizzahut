@@ -1,0 +1,198 @@
+/*
+Template Name: Pizz Restaurant
+File: Layout CSS
+Author: TemplatesOnWeb
+Author URI: https://www.templateonweb.com/
+Licence: <a href="https://www.templateonweb.com/license">Website Template Licence</a>
+*/
+/*********************list****************/
+#list {
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+#list .popular_2i1 {
+  background: #fccc4c2e;
+}
+.list_1 {
+  margin-top: 30px;
+}
+
+.list_detail_1r h6 .span_2 {
+  margin-left: 10px;
+}
+.list_detail_1r h5 .span_1 {
+  background: #ed4e53;
+  display: inline-block;
+  text-align: center;
+  padding: 10px;
+  border-radius: 5px;
+  color: #fff;
+  font-weight: normal;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.list_detail_1r h5 .span_2 {
+  background: #fccc4c2e;
+  display: inline-block;
+  text-align: center;
+  padding: 10px;
+  border-radius: 5px;
+  color: #000;
+  font-weight: normal;
+  margin-right: 5px;
+}
+.list_detail_1r1l h6 i {
+  font-size: 12px;
+  margin-right: 5px;
+}
+.list_detail_1r1l {
+  background: #fccc4c2e;
+  padding: 15px;
+  margin-top: 15px;
+}
+.list_detail_1r2 .input-group {
+  width: 24%;
+  float: left;
+  margin-right: 20px;
+  margin-top: 15px;
+}
+.list_detail_1r2 .input-group .form-control {
+  height: 50px;
+}
+.list_detail_1r2 .input-group .btn {
+  padding: 14px 18px;
+}
+.list_detail_1r2 h6 span {
+  margin-left: 20px;
+}
+.list_detail_2 {
+  margin-top: 30px;
+}
+.list_detail_2l ul li {
+  display: inline-block;
+}
+.nav_1 > li.active > a,
+.nav_1 > li.active > a:hover,
+.nav_1 > li.active > a:focus {
+  background: #ed4e53;
+  color: #fff;
+}
+.list_detail_2l ul li a {
+  background: #fccc4c2e;
+  color: #000;
+  font-size: 20px;
+  margin-right: 2px;
+  margin-left: 2px;
+  border-radius: 5px;
+  padding: 8px 12px;
+  display: block;
+}
+.list_detail_2l ul li a:hover {
+  background: #ed4e53;
+  color: #fff;
+}
+.tab-content {
+  border: 1px solid #ed4e532e;
+  margin-top: 15px;
+  padding: 15px;
+}
+.home_inner h6 .span_2 {
+  margin-left: 10px;
+}
+.home_inner .form-control {
+  height: 50px;
+  color: #333;
+  font-size: 18px;
+  margin-top: 15px;
+  border-color: #ed4e532e;
+  box-shadow: none;
+}
+.home_inner .form_1 {
+  height: 150px;
+}
+.detail_1l4i {
+  margin-top: 15px;
+  border-bottom: 1px solid #ed4e532e;
+  padding-bottom: 20px;
+}
+/*********************list_end****************/
+
+@media screen and (max-width: 767px) {
+  #list {
+    text-align: center;
+  }
+  .list_detail_1r {
+    margin-top: 15px;
+  }
+  .list_detail_1r1l h6 {
+    text-align: left;
+  }
+  .list_detail_1r2 .input-group {
+    width: 48%;
+    float: none;
+    margin-right: 0;
+    margin-top: 15px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .list_detail_2l ul li {
+    margin-bottom: 8px;
+  }
+  .detail_1l4i h5 {
+    text-align: left;
+    margin-top: 15px !important;
+  }
+  .detail_1l4i h5 i {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .list_detail_1r1l h6 {
+    font-size: 14px;
+  }
+  .list_detail_1r2 .input-group {
+    width: 33%;
+  }
+}
+@media (min-width: 992px) and (max-width: 1200px) {
+  .list_detail_1r2 .input-group {
+    width: 25%;
+  }
+}
+@media (min-width: 1201px) and (max-width: 1350px) {
+}
+
+.size-option {
+  cursor: pointer;
+  background: #fccc4c2e;
+  color: #000;
+  border: none;
+  padding: 0;
+  margin-right: 10px;
+}
+
+.size-option .span_1 {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.size-option.active .span_1 {
+  font-weight: 600;
+}
+
+.size-option:hover .span_1 {
+  cursor: pointer;
+}
+
+/* # Custom Css */
+
+.cart-button {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.cart-button .button {
+  margin-top: unset;
+}
