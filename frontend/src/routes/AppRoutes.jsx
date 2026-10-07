@@ -9,7 +9,7 @@ import Registration from "../pages/auth/Register/Registration";
 import ForgetPassword from "../pages/auth/ForgotPassword/ForgetPassword";
 import VerifyEmailPage from "../pages/auth/VerifyEmail/VerifyEmailPage";
 import ResetPassword from "../pages/auth/ResetPassword/ResetPassword";
-import Dashboard from "../pages/user/Dashboard/dashboard";
+import Dashboard from "../pages/user/Dashboard/Dashboard";
 import Profile from "../pages/user/Profile/Profile";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
 import Loader from "../components/common/Loader";

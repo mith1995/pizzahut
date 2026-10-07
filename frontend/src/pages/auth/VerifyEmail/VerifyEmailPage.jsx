@@ -9,16 +9,12 @@ function VerifyEmailPage() {
   const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
-  const [message, setMessage] = useState("Verifying your email...");
+  const token = searchParams.get("token");
+  const [errorMessage, setErrorMessage] = useState("");
   const [verifyEmail] = useVerifyEmailMutation();
 
   useEffect(() => {
-    const token = searchParams.get("token");
-
-    if (!token) {
-      setMessage("Verification token is missing.");
-      return;
-    }
+    if (!token) return;
 
     async function verify() {
       try {
@@ -31,12 +27,16 @@ function VerifyEmailPage() {
           replace: true,
         });
       } catch (error) {
-        setMessage(error?.data?.detail || "Email verification failed.");
+        setErrorMessage(error?.data?.detail || "Email verification failed.");
       }
     }
 
     verify();
-  }, [navigate, searchParams, verifyEmail]);
+  }, [dispatch, navigate, token, verifyEmail]);
+
+  const message = !token
+    ? "Verification token is missing."
+    : errorMessage || "Verifying your email...";
 
   return <p>{message}</p>;
 }
