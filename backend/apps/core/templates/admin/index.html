@@ -1,0 +1,59 @@
+{% extends "unfold/layouts/base_simple.html" %}
+{% load i18n unfold %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block title %}Dashboard | {{ site_title|default:"Admin" }}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+    {% component "unfold/components/container.html" %}
+        <div class="flex flex-col gap-6">
+
+            <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                {% for card in kpis %}
+                    {% component "unfold/components/card.html" %}
+                        {% component "unfold/components/text.html" %}{{ card.title }}{% endcomponent %}
+                        {% component "unfold/components/title.html" %}{{ card.value }}{% endcomponent %}
+                    {% endcomponent %}
+                {% endfor %}
+            </div>
+
+            <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                {% for item in attention %}
+                    <a href="{{ item.url }}">
+                        {% component "unfold/components/card.html" %}
+                            {% component "unfold/components/text.html" %}{{ item.title }}{% endcomponent %}
+                            {% component "unfold/components/title.html" %}{{ item.value }}{% endcomponent %}
+                        {% endcomponent %}
+                    </a>
+                {% endfor %}
+            </div>
+
+            <div class="grid gap-4 grid-cols-1 lg:grid-cols-2">
+                {% component "unfold/components/card.html" with title="Revenue, last 7 days" %}
+                    {% component "unfold/components/chart/bar.html" with data=revenue_chart height=240 %}{% endcomponent %}
+                {% endcomponent %}
+                {% component "unfold/components/card.html" with title="Orders, last 7 days" %}
+                    {% component "unfold/components/chart/bar.html" with data=orders_chart height=240 %}{% endcomponent %}
+                {% endcomponent %}
+            </div>
+
+            <div class="grid gap-4 grid-cols-1 lg:grid-cols-3">
+                <div class="lg:col-span-2">
+                    {% component "unfold/components/card.html" with title="Recent orders" %}
+                        {% component "unfold/components/table.html" with table=recent_orders %}{% endcomponent %}
+                    {% endcomponent %}
+                </div>
+                {% component "unfold/components/card.html" with title="Top products" %}
+                    {% component "unfold/components/table.html" with table=top_products %}{% endcomponent %}
+                {% endcomponent %}
+            </div>
+
+        </div>
+    {% endcomponent %}
+{% endblock %}

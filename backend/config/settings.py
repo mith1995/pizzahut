@@ -19,6 +19,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'apps.core',
     'unfold',
     'unfold.contrib.filters',
     'django.contrib.admin',
@@ -28,7 +29,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'apps.core',
     'apps.products',
     'apps.users',
     'apps.cart',
@@ -245,19 +245,6 @@ UNFOLD = {
                     },
                 ],
             },
-            
-            # Users
-            {
-                "items": [
-                    {
-                        "title": _("Users"),
-                        "icon": "people",
-                        "link": reverse_lazy(
-                            "admin:users_user_changelist"
-                        ),
-                    },
-                ],
-            },
 
             # Orders
             {
@@ -266,6 +253,19 @@ UNFOLD = {
                         "title": _("All Orders"),
                         "icon": "receipt_long",
                         "link": "/admin/orders/order/",
+                    },
+                ],
+            },
+
+            # Payments
+            {
+                "items": [
+                    {
+                        "title": _("Payments"),
+                        "icon": "wallet",
+                        "link": reverse_lazy(
+                            "admin:payments_paymentsession_changelist"
+                        ),
                     },
                 ],
             },
@@ -365,9 +365,11 @@ UNFOLD = {
                         )
                     }
                 ]
-            }
+            },
         ],
     },
+
+    "DASHBOARD_CALLBACK": "apps.core.dashboard.dashboard_callback",
 
     "TABS": [
         {
