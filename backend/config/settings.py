@@ -1,4 +1,8 @@
 from pathlib import Path
+import os
+
+import dj_database_url
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,12 +12,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$kxwc1mg5t1lp-u1iy4bkx8((v(68la=wr@9+=@_63mr%&omi2'
+# Production: set SECRET_KEY in the environment (Render generates one). The default is for local dev only.
+SECRET_KEY = config(
+    "SECRET_KEY",
+    default='django-insecure-$kxwc1mg5t1lp-u1iy4bkx8((v(68la=wr@9+=@_63mr%&omi2',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
 
 # Application definition
@@ -42,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
@@ -85,11 +94,13 @@ REST_FRAMEWORK = {
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+# Local: SQLite. Production: set DATABASE_URL (Neon Postgres connection string).
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        env='DATABASE_URL',
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=0,  # Neon suspends idle connections, so don't keep them open
+    )
 }
 
 
@@ -150,10 +161,19 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+}
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
+# Render terminates TLS at its proxy
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+CORS_ALLOWED_ORIGINS = config(
+    "CORS_ALLOWED_ORIGINS", default="http://localhost:5173", cast=Csv()
+)
+CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
 
 from datetime import timedelta
 
@@ -164,8 +184,6 @@ SIMPLE_JWT = {
 }
 
 # Email Configurations
-from decouple import config
-
 MAILERS = {
     "default": {
         "BACKEND": (
@@ -205,6 +223,8 @@ FRONTEND_URL = config(
 
 RAZORPAY_KEY_ID = config("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET")
+# Used by apps/payments/views.py (RazorpayWebhookView); was referenced but never defined
+RAZORPAY_WEBHOOK_SECRET = config("RAZORPAY_WEBHOOK_SECRET", default="")
 
 CURRENCY_CODE = 'INR'
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useGetProductQuery } from "../../../services/api";
 
@@ -14,7 +14,7 @@ import { formatPrice } from "../../../utils/helper";
 function PizzaInfo() {
   const { slug } = useParams();
   const [quantity, setQuantity] = useState(1);
-  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [selectedVariantId, setSelectedVariantId] = useState(null);
 
   const {
     data: product,
@@ -26,6 +26,13 @@ function PizzaInfo() {
   } = useGetProductQuery(slug);
   const { addToCart } = useAddToCart();
 
+  // The user's pick wins; otherwise fall back to the first active variant.
+  const variants = product?.variants ?? [];
+  const selectedVariant =
+    variants.find((variant) => variant.id === selectedVariantId) ??
+    variants.find((variant) => variant.is_active) ??
+    null;
+
   const increaseQty = () => {
     setQuantity((quantity) => quantity + 1);
   };
@@ -33,16 +40,6 @@ function PizzaInfo() {
   const decreaseQty = () => {
     quantity > 1 && setQuantity((quantity) => quantity - 1);
   };
-
-  useEffect(() => {
-    const defaultVariant = product?.variants?.find(
-      (variant) => variant.is_active,
-    );
-
-    if (defaultVariant) {
-      setSelectedVariant(defaultVariant);
-    }
-  }, [product]);
 
   const handleAddToCart = async () => {
     try {
@@ -103,7 +100,7 @@ function PizzaInfo() {
                 <button
                   type="button"
                   key={variant.id}
-                  onClick={() => setSelectedVariant(variant)}
+                  onClick={() => setSelectedVariantId(variant.id)}
                   className={
                     selectedVariant?.id === variant.id
                       ? "size-option active"

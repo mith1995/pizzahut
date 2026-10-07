@@ -1,3 +1,4 @@
+/* global $ -- jQuery is loaded via <script> in index.html */
 import { useEffect, useState } from "react";
 import HeroSlide from "./HeroSlide";
 
