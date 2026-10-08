@@ -50,3 +50,4 @@ whitenoise
 xhtml2pdf==0.2.21
 yarl==1.25.1
 django-unfold==0.108.0
+cloudinary

@@ -167,6 +167,14 @@ STORAGES = {
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
 }
 
+# Uploaded images (products etc.): Render's disk is wiped on every deploy, so in production
+# they live on Cloudinary. Set CLOUDINARY_URL (cloudinary://key:secret@cloud_name) to enable;
+# when it is not set (local dev) the normal media/ folder is used.
+CLOUDINARY_URL = config("CLOUDINARY_URL", default="")
+if CLOUDINARY_URL:
+    os.environ["CLOUDINARY_URL"] = CLOUDINARY_URL  # the cloudinary SDK reads it from the environment
+    STORAGES["default"] = {"BACKEND": "apps.core.storage.CloudinaryMediaStorage"}
+
 # Render terminates TLS at its proxy
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
