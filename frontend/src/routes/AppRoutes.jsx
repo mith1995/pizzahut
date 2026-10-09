@@ -19,6 +19,7 @@ import Cart from "../pages/user/Cart/Cart";
 import Checkout from "../pages/user/Checkout/Checkout";
 import Order from "../pages/user/Orders/Order";
 import OrderDetail from "../pages/user/OrderDetail/OrderDetail";
+import Wishlist from "../pages/user/WishlistProduct/Wishlist";
 
 function AppRoutes() {
   return (
@@ -46,6 +47,7 @@ function AppRoutes() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/account/orders" element={<Order />} />
             <Route path="/account/orders/:orderId" element={<OrderDetail />} />
+            <Route path="/account/wishlist" element={<Wishlist />} />
           </Route>
         </Routes>
       </Suspense>

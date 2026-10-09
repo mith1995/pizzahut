@@ -1,14 +1,30 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import FallbackImage from "../../../components/common/FallbackImage";
 import { useAddToCart } from "../../../hooks/useAddToCart";
 import Button from "../../../components/common/Button";
 import { formatPrice } from "../../../utils/helper";
+import {
+  useAddToWishlistMutation,
+  useGetWishlistQuery,
+  useRemoveFromWishlistMutation,
+} from "../../../services/wishlistProductApi";
+import { isLoggedIn } from "../../../utils/auth";
 
 function ProductCard({ product }) {
-  const [favorite, setFavorite] = useState(false);
+  const navigate = useNavigate();
   const { addToCart } = useAddToCart();
+  const { data: wishlist = [] } = useGetWishlistQuery(undefined, {
+    skip: !isLoggedIn(),
+    refetchOnMountOrArgChange: true, // page khulte hi fresh data
+    refetchOnFocus: true, // tab par wapas aate hi fresh data
+    refetchOnReconnect: true,
+  });
+  const [addToWishlist, { isLoading: isAdding }] = useAddToWishlistMutation();
+  const [removeFromWishlist, { isLoading: isRemoving }] =
+    useRemoveFromWishlistMutation();
+
+  const isWishlisted = wishlist.some((item) => item.product.id === product.id);
 
   const image = product.image;
   const slug = product.slug;
@@ -24,6 +40,31 @@ function ProductCard({ product }) {
         duration: 3000,
         icon: "🍕",
       });
+    } catch (error) {
+      toast.error(error?.data?.error || "Something went wrong");
+    }
+  };
+
+  const handleWishlist = async () => {
+    try {
+      if (!isLoggedIn()) {
+        navigate("/login");
+        return;
+      }
+
+      if (isWishlisted) {
+        await removeFromWishlist({ product_id: product.id }).unwrap();
+        toast.success("Pizza removed from the wishlist", {
+          duration: 3000,
+          icon: "🍕",
+        });
+      } else {
+        await addToWishlist({ product_id: product.id }).unwrap();
+        toast.success("Pizza added to the wishlist", {
+          duration: 3000,
+          icon: "🍕",
+        });
+      }
     } catch (error) {
       toast.error(error?.data?.error || "Something went wrong");
     }
@@ -49,9 +90,14 @@ function ProductCard({ product }) {
             <button
               type="button"
               className="favorite-btn"
-              onClick={() => setFavorite(!favorite)}
+              onClick={handleWishlist}
+              disabled={isAdding || isRemoving}
             >
-              <i className={favorite ? "fa fa-heart" : "fa fa-heart-o"}></i>
+              <i
+                className={
+                  isWishlisted ? "fa fa-heart like-product" : "fa fa-heart-o"
+                }
+              ></i>
             </button>
           </span>
         </div>

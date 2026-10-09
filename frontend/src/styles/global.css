@@ -1142,3 +1142,11 @@ button.customer-nav-logout:hover > i.fa.fa-sign-out {
     sans-serif;
   text-align: center;
 }
+
+.favorite-btn .like-product {
+  color: #ed4e53;
+}
+
+.favorite-btn:hover .like-product {
+  color: #fff;
+}
