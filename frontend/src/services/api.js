@@ -91,6 +91,7 @@ export const api = createApi({
     "Country",
     "State",
     "City",
+    "Wishlist",
   ],
   endpoints: (builder) => ({
     getProducts: builder.query({
