@@ -73,11 +73,15 @@ Licence: <a href="https://www.templateonweb.com/license">Website Template Licenc
 }
 .nav_1 > li.active > a,
 .nav_1 > li.active > a:hover,
-.nav_1 > li.active > a:focus {
+.nav_1 > li.active > a:focus,
+.nav_1 > li.active > button,
+.nav_1 > li.active > button:hover,
+.nav_1 > li.active > button:focus {
   background: #ed4e53;
   color: #fff;
 }
-.list_detail_2l ul li a {
+.list_detail_2l ul li a,
+.list_detail_2l ul li button {
   background: #fccc4c2e;
   color: #000;
   font-size: 20px;
@@ -87,7 +91,8 @@ Licence: <a href="https://www.templateonweb.com/license">Website Template Licenc
   padding: 8px 12px;
   display: block;
 }
-.list_detail_2l ul li a:hover {
+.list_detail_2l ul li a:hover,
+.list_detail_2l ul li button:hover {
   background: #ed4e53;
   color: #fff;
 }

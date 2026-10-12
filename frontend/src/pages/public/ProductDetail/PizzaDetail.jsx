@@ -1,3 +1,4 @@
+import "../../../styles/reviews.css";
 import Navbar from "../../../components/common/Navbar";
 import PageHeader from "../../../components/common/PageHeader";
 import Topbar from "../../../components/common/Topbar";
