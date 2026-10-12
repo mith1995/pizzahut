@@ -10,6 +10,8 @@ import { useAddToCart } from "../../../hooks/useAddToCart";
 import toast from "react-hot-toast";
 import ApiStateHandler from "../../../components/common/ApiStateHandler";
 import { formatPrice } from "../../../utils/helper";
+import { useGetReviewsQuery } from "../../../services/reviewsApi";
+import ProductState from "../../../components/common/ProductState";
 
 function PizzaInfo() {
   const { slug } = useParams();
@@ -18,13 +20,14 @@ function PizzaInfo() {
 
   const {
     data: product,
-    isLoading,
+    isLoading: loadingProduct,
     isError,
     error,
-    isFetching,
     refetch,
   } = useGetProductQuery(slug);
   const { addToCart } = useAddToCart();
+
+  const { data: review, isLoading: loadingReview } = useGetReviewsQuery(slug);
 
   // The user's pick wins; otherwise fall back to the first active variant.
   const variants = product?.variants ?? [];
@@ -53,10 +56,10 @@ function PizzaInfo() {
     }
   };
 
-  if (isLoading || isError) {
+  if (loadingProduct || isError) {
     return (
       <ApiStateHandler
-        isLoading={isLoading}
+        isLoading={loadingProduct}
         isError={isError}
         error={error}
         refetch={refetch}
@@ -64,12 +67,18 @@ function PizzaInfo() {
     );
   }
 
+  if (loadingProduct || loadingReview) {
+    return (
+      <section id="list" className="clearfix">
+        <div className="container">
+          <ProductState type="loading" title="Loading..." />
+        </div>
+      </section>
+    );
+  }
   return (
     <>
       <div className="list_detail_1 clearfix">
-        {isFetching && (
-          <p className="products-refreshing">Updating products...</p>
-        )}
         <div className="col-sm-5">
           <div className="list_detail_1l clearfix">
             <FallbackImage
@@ -84,8 +93,11 @@ function PizzaInfo() {
           <div className="list_detail_1r clearfix">
             <h1 className="mgt">{product.name}</h1>
             <h6>
-              <RatingStar className="span_1 col_4" rating={product.rating} />
-              <span className="span_2">({product.totalRatings} ratings)</span>
+              <RatingStar
+                className="span_1 col_4"
+                rating={review.summary.average}
+              />
+              <span className="span_2">({review.summary.count} ratings)</span>
             </h6>
             <h3 className="col_1">
               {formatPrice(
@@ -186,7 +198,7 @@ function PizzaInfo() {
         </div>
       </div>
 
-      <PizzaTabs description={product.description} reviews={product?.reviews} />
+      <PizzaTabs description={product.description} />
     </>
   );
 }
