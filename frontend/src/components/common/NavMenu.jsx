@@ -1,7 +1,8 @@
 import { NavLink, useLocation } from "react-router-dom";
 // import DropdownMenu from "./DropdownMenu";
 
-function NavMenu({ activePopup, setActivePopup }) {
+// { activePopup, setActivePopup }
+function NavMenu() {
   const location = useLocation();
 
   // const menuItems = [
