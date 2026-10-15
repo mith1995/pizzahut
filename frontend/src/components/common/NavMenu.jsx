@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import DropdownMenu from "./DropdownMenu";
+// import DropdownMenu from "./DropdownMenu";
 
 function NavMenu({ activePopup, setActivePopup }) {
   const location = useLocation();
@@ -8,15 +8,15 @@ function NavMenu({ activePopup, setActivePopup }) {
   //   { label: "Menu Listing", to: "/list" },
   //   { label: "Menu Detail", to: "/detail", className: "border_none" },
   // ];
-  const blogItems = [
-    { label: "Blog", to: "/blog" },
-    { label: "Blog Detail", to: "/blog_detail", className: "border_none" },
-  ];
-  const pagesItems = [
-    { label: "Register", to: "/register" },
-    { label: "Shopping Cart", to: "/cart" },
-    { label: "Checkout", to: "/checkout", className: "border_none" },
-  ];
+  // const blogItems = [
+  //   { label: "Blog", to: "/blog" },
+  //   { label: "Blog Detail", to: "/blog_detail", className: "border_none" },
+  // ];
+  // const pagesItems = [
+  //   { label: "Register", to: "/register" },
+  //   { label: "Shopping Cart", to: "/cart" },
+  //   { label: "Checkout", to: "/checkout", className: "border_none" },
+  // ];
   return (
     <ul className="nav navbar-nav">
       <li>
@@ -49,7 +49,7 @@ function NavMenu({ activePopup, setActivePopup }) {
         isOpen={activePopup === "menu"}
         onToggle={() => setActivePopup(activePopup === "menu" ? null : "menu")}
       /> */}
-      <DropdownMenu
+      {/* <DropdownMenu
         title="Blog"
         items={blogItems}
         isOpen={activePopup === "blog"}
@@ -62,16 +62,16 @@ function NavMenu({ activePopup, setActivePopup }) {
         >
           Contact Us
         </NavLink>
-      </li>
+      </li> */}
 
-      <DropdownMenu
+      {/* <DropdownMenu
         title="Pages"
         items={pagesItems}
         isOpen={activePopup === "pages"}
         onToggle={() =>
           setActivePopup(activePopup === "pages" ? null : "pages")
         }
-      />
+      /> */}
     </ul>
   );
 }

@@ -1,57 +1,24 @@
+import ProductState from "../../../components/common/ProductState";
 import ProductCard from "../Products/ProductCard";
 
-function PopularSection() {
-  const popularProducts = [
-    {
-      id: 1,
-      name: "Margherita Pizza",
-      price: 299,
-      image: "img/9.jpg",
-      description: "Classic pizza with fresh mozzarella and basil.",
-    },
-    {
-      id: 2,
-      name: "Pepperoni Pizza",
-      price: 399,
-      image: "img/10.jpg",
-      description: "Loaded with pepperoni and mozzarella cheese.",
-    },
-    {
-      id: 3,
-      name: "BBQ Chicken Pizza",
-      price: 449,
-      image: "img/11.jpg",
-      description: "Grilled chicken with smoky BBQ sauce.",
-    },
-    {
-      id: 4,
-      name: "Four Cheese Pizza",
-      price: 379,
-      image: "img/12.jpg",
-      description: "A delicious blend of four premium cheeses.",
-    },
-    {
-      id: 5,
-      name: "Farmhouse Pizza",
-      price: 349,
-      image: "img/13.jpg",
-      description: "Fresh vegetables with mozzarella cheese.",
-    },
-    {
-      id: 6,
-      name: "Chicken Tikka Pizza",
-      price: 429,
-      image: "img/14.jpg",
-      description: "Spicy chicken tikka with onions and peppers.",
-    },
-  ];
-
+function PopularSection({ products, isLoading, isError }) {
   const slides = [];
 
-  for (let i = 0; i < popularProducts.length; i += 3) {
-    slides.push(popularProducts.slice(i, i + 3));
+  for (let i = 0; i < products.length; i += 3) {
+    slides.push(products.slice(i, i + 3));
   }
 
+  if (isLoading) {
+    return (
+      <section id="list" className="clearfix">
+        <div className="container">
+          <ProductState type="loading" />
+        </div>
+      </section>
+    );
+  }
+
+  if (isError) return null;
   return (
     <section id="popular" className="clearfix">
       <div className="container">
