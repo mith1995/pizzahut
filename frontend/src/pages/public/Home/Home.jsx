@@ -3,58 +3,17 @@ import Topbar from "../../../components/common/Topbar";
 import Navbar from "../../../components/common/Navbar";
 import Footer from "../../../components/footer/Footer";
 import HeroSection from "./HeroSection";
-import OfferSection from "./OfferSection";
+// import OfferSection from "./OfferSection";
 import AboutSection from "../../../components/common/AboutSection";
 import TrendingBlock from "../../../components/common/TrendingBlock";
 import PopularSection from "./PopularSection";
 import TestimonialSection from "../../../components/testimonials/TestimonialSection";
 import TestimonialCarousel from "../../../components/testimonials/TestimonialCarousel";
 import GallerySection from "./GallerySection";
+import { useGetHomeQuery } from "../../../services/homeApi";
 
 function Home() {
-  const pizzaItems = [
-    {
-      id: 1,
-      name: "Pepperoni Pizza",
-      price: 16.99,
-      description:
-        "Classic pepperoni pizza with mozzarella cheese and rich tomato sauce.",
-    },
-    {
-      id: 2,
-      name: "Four Cheese",
-      price: 12.99,
-      description:
-        "A delicious combination of mozzarella, cheddar, parmesan and blue cheese.",
-    },
-    {
-      id: 3,
-      name: "Vegetarian",
-      price: 16.99,
-      description:
-        "Fresh vegetables, mozzarella cheese and tomato sauce on a crispy crust.",
-    },
-    {
-      id: 4,
-      name: "Barbeque Chicken",
-      price: 12.99,
-      description: "Grilled chicken, BBQ sauce, onions and mozzarella cheese.",
-    },
-    {
-      id: 5,
-      name: "Ham & Cheese",
-      price: 16.99,
-      description:
-        "Tender ham with melted mozzarella cheese and our special tomato sauce.",
-    },
-    {
-      id: 6,
-      name: "Specialty Pizza",
-      price: 12.99,
-      description:
-        "Our chef's special pizza made with premium toppings and fresh ingredients.",
-    },
-  ];
+  const { data, isLoading, isError } = useGetHomeQuery();
 
   const testimonials = [
     {
@@ -116,8 +75,12 @@ function Home() {
     <>
       <Topbar />
       <Navbar />
-      <HeroSection />
-      <OfferSection />
+      <HeroSection
+        slides={data?.hero ?? []}
+        isLoading={isLoading}
+        isError={isError}
+      />
+      {/* <OfferSection /> */}
       <AboutSection
         image="img/6.jpg"
         subtitle="Sir Slice's Heritage"
@@ -137,18 +100,18 @@ function Home() {
           titel="Our Passion, Our Heritage, Our Pizzas"
           description="Lorem Ipsum has been the industry's standard dummy text ever since
             the 1500s"
-          pizzaItems={pizzaItems}
+          pizzaItems={data?.menu ?? []}
         />
-        <TrendingBlock
+        {/* <TrendingBlock
           image="img/8.jpg"
           subtitle="Burger menu"
           description="Lorem Ipsum has been the industry's standard dummy text ever since
             the 1500s"
           pizzaItems={pizzaItems}
           reverse={true}
-        />
+        /> */}
       </section>
-      <PopularSection />
+      <PopularSection products={data?.trending ?? []} isLoading={isLoading} />
       <TestimonialSection>
         <TestimonialCarousel testimonials={testimonials} />
       </TestimonialSection>

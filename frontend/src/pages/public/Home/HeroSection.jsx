@@ -1,44 +1,10 @@
 /* global $ -- jQuery is loaded via <script> in index.html */
 import { useEffect, useState } from "react";
 import HeroSlide from "./HeroSlide";
+import ProductState from "../../../components/common/ProductState";
 
-function HeroSection() {
+function HeroSection({ slides, isLoading, isError }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const heroSlides = [
-    {
-      id: 1,
-      title: "Nulla Quis Libero",
-      subtitle: "Ham & Cheese With Vegetables",
-      description:
-        "Nulla quis sem at nibh elementum imperdiet Fusce nec tellus sed augue semper porta Vestibulum lacinia arcu eget nulla!",
-      calories: "900",
-      cheese: "400g",
-      price: 66,
-      image: "img/3.jpg",
-    },
-    {
-      id: 2,
-      title: "Sed Augue Semper",
-      subtitle: "Ham & Cheese With Vegetables",
-      description:
-        "Nulla quis sem at nibh elementum imperdiet Fusce nec tellus sed augue semper porta Vestibulum lacinia arcu eget nulla!",
-      calories: "900",
-      cheese: "400g",
-      price: 69,
-      image: "img/4.jpg",
-    },
-    {
-      id: 3,
-      title: "Fusce Nec Dapibus",
-      subtitle: "Ham & Cheese With Vegetables",
-      description:
-        "Nulla quis sem at nibh elementum imperdiet Fusce nec tellus sed augue semper porta Vestibulum lacinia arcu eget nulla!",
-      calories: "900",
-      cheese: "400g",
-      price: 49,
-      image: "img/5.jpg",
-    },
-  ];
 
   useEffect(() => {
     const carousel = $("#bs-carousel");
@@ -51,6 +17,19 @@ function HeroSection() {
       carousel.off("slid.bs.carousel");
     };
   }, []);
+
+  if (isLoading) {
+    return (
+      <section id="list" className="clearfix">
+        <div className="container">
+          <ProductState type="loading" />
+        </div>
+      </section>
+    );
+  }
+
+  if (isError) return null;
+
   return (
     <>
       <section id="center" className="center_home clearfix">
@@ -66,7 +45,7 @@ function HeroSection() {
                 <div className="overlay"></div>
 
                 <ol className="carousel-indicators">
-                  {heroSlides.map((pizza, index) => (
+                  {slides.map((pizza, index) => (
                     <li
                       key={pizza.id}
                       data-target="#bs-carousel"
@@ -77,7 +56,7 @@ function HeroSection() {
                 </ol>
 
                 <div className="carousel-inner">
-                  {heroSlides.map((pizza, index) => (
+                  {slides.map((pizza, index) => (
                     <HeroSlide
                       key={pizza.id}
                       pizza={pizza}

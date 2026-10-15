@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'apps.orders',
     'apps.payments',
     'apps.wishlist',
+    'apps.home',
     'corsheaders',
     'django_extensions',
 ]

@@ -1,3 +1,4 @@
+import { formatPrice } from "../../utils/helper";
 import FallbackImage from "./FallbackImage";
 
 function TrendingBlock({
@@ -20,17 +21,19 @@ function TrendingBlock({
           <h5 className="mgt col_1">{subtitle}</h5>
           <h1>{title}</h1>
           <p>{description}</p>
-          <div className="trending_1ri clearfix">
+          <div className="trending_1ri clearfix menu-list">
             {pizzaItems.map((pizza) => (
-              <div key={pizza.id} className="col-sm-6 space_left">
+              <div key={pizza.id} className="menu-item">
                 <div className="trending_1ril clearfix">
                   <h5>
                     {pizza.name}
                     <span className="pull-right col_1">
-                      $ {pizza.price.toFixed(2)}
+                      {formatPrice(pizza.price, pizza.currency_symbol)}
                     </span>
                   </h5>
-                  <p>{pizza.description}</p>
+                  <p className="menu-item-desc" title={pizza.short_description}>
+                    {pizza.short_description}
+                  </p>
                 </div>
               </div>
             ))}
